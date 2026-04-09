@@ -22,4 +22,9 @@ public interface EmployeeService {
     * 分页查询
     * */
     public PageResult page(EmployeePageQueryDTO employeePageQueryDTO);
+    /*
+    * 更新员工状态
+    * */
+    void startOrStop(Integer status, Long id);
+
 }
