@@ -27,4 +27,12 @@ public interface EmployeeService {
     * */
     void startOrStop(Integer status, Long id);
 
+    /*
+    * 根据ID查员工信息
+    * */
+    Employee selectById(Long id);
+    /*
+    * 编辑员工信息
+    * */
+    void update(EmployeeDTO employeeDTO);
 }
