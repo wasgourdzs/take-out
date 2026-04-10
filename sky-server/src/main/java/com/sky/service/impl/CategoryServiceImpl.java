@@ -52,9 +52,9 @@ public class CategoryServiceImpl implements CategoryService {
     * 根据类型查询
     * */
     @Override
-    public Category list(Integer type) {
-        Category category = categoryMapper.selectByType(type);
-        return category;
+    public List<Category> list(Integer type) {
+        List<Category> list = categoryMapper.selectByType(type);
+        return list;
     }
     /*
     * 新增分类

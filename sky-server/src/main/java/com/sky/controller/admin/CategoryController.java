@@ -13,6 +13,8 @@ import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/category")
 @Slf4j
@@ -37,9 +39,9 @@ public class CategoryController {
     * */
     @ApiOperation("类型查询")
     @GetMapping("/list")
-    public Result<Category> list(Integer type) {
-        Category category = categoryService.list(type);
-        return Result.success(category);
+    public Result<List<Category>> list(Integer type) {
+        List<Category> list = categoryService.list(type);
+        return Result.success(list);
     }
 
     /*

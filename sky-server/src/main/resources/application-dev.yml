@@ -6,3 +6,7 @@ sky:
     database: sky_take_out
     username: root
     password: 0619
+  alioss:
+    bucket-name: web-gua-talis
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    region: cn-beijing
