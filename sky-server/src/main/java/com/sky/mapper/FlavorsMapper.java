@@ -8,6 +8,12 @@ import java.util.List;
 
 @Mapper
 public interface FlavorsMapper {
-
+    /*
+    * 插入口味
+    * */
     void insertBatch(List<DishFlavor> flavors);
+    /*
+    * 删除口味
+    * */
+    void deleteByDishId(List<Long> ids);
 }
