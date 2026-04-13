@@ -15,4 +15,8 @@ public interface SetmealDishMapper {
     * 新增套餐，增加套餐菜品对应关系
     * */
     void insertBatch(List<SetmealDish> setmealDishes);
+    /*
+    * 删除套餐菜品对应关系
+    * */
+    void deleteBatch(List<Long> ids);
 }
