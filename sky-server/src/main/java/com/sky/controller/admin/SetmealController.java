@@ -69,4 +69,13 @@ public class SetmealController {
         setmealService.delete(ids);
         return Result.success();
     }
+    /*
+    * 套餐起售停售
+    * */
+    @ApiOperation("起售停售")
+    @PostMapping("/status/{status}")
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        setmealService.startOrStop(status, id);
+        return Result.success();
+    }
 }
