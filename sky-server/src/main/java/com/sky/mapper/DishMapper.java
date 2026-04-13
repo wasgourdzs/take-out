@@ -29,11 +29,21 @@ public interface DishMapper {
     * */
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
     /*
-    * 通过ID查询菜品
+    * 通过ID查询菜品(批量查)
     * */
-    List<Dish> selectById(List<Long> ids);
+    List<Dish> selectByIds(List<Long> ids);
+    /*
+     *  通过ID查菜品（单独查）
+     * */
+    @Select("select * from dish where id = #{id}")
+    Dish selectById(Long id);
     /*
     * 通过ID删除菜品
     * */
     void deleteById(List<Long> ids);
+    /*
+    * 更改菜品信息
+    * */
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 }

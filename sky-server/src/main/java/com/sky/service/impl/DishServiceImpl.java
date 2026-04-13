@@ -16,6 +16,7 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,8 +72,8 @@ public class DishServiceImpl implements DishService {
     @Transactional
     @Override
     public void delete(List<Long> ids) {
-        //查菜品状态
-        List<Dish> dishes = dishMapper.selectById(ids);
+        //查菜品状态(批量查)
+        List<Dish> dishes = dishMapper.selectByIds(ids);
         for (Dish dish : dishes) {
             if (dish.getStatus() == StatusConstant.ENABLE) {
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
@@ -86,6 +87,56 @@ public class DishServiceImpl implements DishService {
         //删除菜品
         dishMapper.deleteById(ids);
         //删除口味
-        flavorsMapper.deleteByDishId(ids);
+        flavorsMapper.deleteByDishIds(ids);
+    }
+
+    /*
+    * 根据ID查询
+    * */
+    @ApiOperation("根据ID查询")
+    @Override
+    public DishVO selectByIdWithFlavor(Long id) {
+        //查询菜品表
+        Dish dish = dishMapper.selectById(id);
+        //查询口味表
+        List<DishFlavor> flavors = flavorsMapper.selectByDishId(id);
+        //封装为VO对象返回
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(flavors);
+        return dishVO;
+    }
+
+    /*
+    * 更改菜品
+    * */
+    @ApiOperation("修改菜品")
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        //更改菜品表信息
+        dishMapper.update(dish);
+        //更改口味表信息
+        //删除原有口味
+        flavorsMapper.deleteByDishId(dish.getId());
+        //新增口味信息(插入需要获得菜品ID)
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors != null && !flavors.isEmpty()) {
+            flavors.forEach(s -> s.setDishId(dish.getId()));
+            flavorsMapper.insertBatch(flavors);
+        }
+    }
+    /*
+    * 菜品起售停售
+    * */
+    @ApiOperation("更改菜品状态")
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Dish dish = Dish.builder()
+                        .id(id)
+                        .status(status)
+                        .build();
+        dishMapper.update(dish);
     }
 }
