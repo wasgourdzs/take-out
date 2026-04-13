@@ -43,4 +43,20 @@
         insert into setmeal (category_id, name, price, status, description, image, create_time, update_time, create_user, update_user)
             values (#{categoryId}, #{name}, #{price}, #{status}, #{description}, #{image}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+
+    <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
+        select s.*,c.name as category_name  from setmeal as s left join category as c on s.category_id = c.id
+        <where>
+            <if test="name != null">
+                name like concat('%', #{name}, '%'),
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+        </where>
+        order by s.create_time desc
+    </select>
 </mapper>
