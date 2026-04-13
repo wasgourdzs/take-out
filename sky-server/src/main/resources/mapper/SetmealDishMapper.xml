@@ -22,4 +22,5 @@
             #{setmealId}
         </foreach>
     </delete>
+
 </mapper>
