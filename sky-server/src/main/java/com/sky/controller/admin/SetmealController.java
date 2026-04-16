@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/admin/setmeal")
-@Api("套餐相关借口")
+@Api(tags = "套餐相关借口")
 public class SetmealController {
 
     @Autowired

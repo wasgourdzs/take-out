@@ -10,3 +10,7 @@ sky:
     bucket-name: web-gua-talis
     endpoint: https://oss-cn-beijing.aliyuncs.com
     region: cn-beijing
+  redis:
+    host: localhost
+    port: 6379
+    database: 10
