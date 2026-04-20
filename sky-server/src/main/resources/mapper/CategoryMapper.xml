@@ -15,6 +15,15 @@
         order by sort asc, create_time desc
     </select>
 
+    <select id="selectByType" resultType="com.sky.entity.Category">
+        select * from category
+        where status = 1
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        order by sort asc,create_time desc
+    </select>
+
     <update id="update">
         update category
         <set>

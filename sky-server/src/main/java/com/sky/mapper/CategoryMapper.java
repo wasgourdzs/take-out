@@ -22,7 +22,7 @@ public interface CategoryMapper {
     /*
     * 根据类型查询
     * */
-    @Select("select * from category where type = #{type}")
+//    @Select("select * from category where type = #{type}")
     List<Category> selectByType(Integer type);
     /*
     * 插入分类

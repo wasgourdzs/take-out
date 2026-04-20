@@ -54,7 +54,7 @@ public class AliOssUtil {
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, inputStream);
         PutObjectResult result = ossClient.putObject(putObjectRequest);
         //拼接URL
-        String URL = endpoint.split("//")[0] + bucketName + "." + endpoint.split("//")[1] + "/" + objectName;
+        String URL = endpoint.split("//")[0] + "//" + bucketName + "." + endpoint.split("//")[1] + "/" + objectName;
         //关闭ossClient
         ossClient.shutdown();
         //返回URL

@@ -12,10 +12,12 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.print.attribute.standard.ReferenceUriSchemesSupported;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Slf4j
@@ -25,6 +27,8 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /*
     *   新增菜品
@@ -33,6 +37,11 @@ public class DishController {
     @PostMapping()
     public Result save(@RequestBody DishDTO dishDTO) {
         dishService.saveWithFlavors(dishDTO);
+        //清理redis缓存，保证数据的一致性
+        //新增菜品删除对应分类的redis数据    （可以不清理，因为新增菜品是停售状态，不会显示，在起售时会清理缓存）
+        String key = "dish_" + dishDTO.getCategoryId();
+        redisTemplate.delete(key);
+
         return Result.success();
     }
 
@@ -54,6 +63,11 @@ public class DishController {
     public Result delete(@RequestParam List<Long> ids) {
         log.info("批量删除");
         dishService.delete(ids);
+        //清理redis缓存，保证数据的一致性
+        //批量删除菜品，涉及多个分类，全部删除缓存  (可以不清理，因为删除菜品需要先停售，停售时候会清理缓存)
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
+
         return Result.success();
     }
 
@@ -83,6 +97,11 @@ public class DishController {
     @PutMapping()
     public Result updateWithFlavor(@RequestBody DishDTO dishDTO) {
         dishService.updateWithFlavor(dishDTO);
+        //清理redis缓存，保持数据一致性
+        //更改菜涉及更改菜品的分类，删除全部redis缓存
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
+
         return Result.success();
     }
 
@@ -93,6 +112,11 @@ public class DishController {
     @PostMapping("/status/{status}")
     public Result startOrStop (@PathVariable Integer status, Long id) {
         dishService.startOrStop(status, id);
+        //清理redis缓存，保持数据一致性
+        //更改对应分类的缓存数据（但是需要查询一次数据库，所以全部删除缓存）
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
+
         return Result.success();
     }
 }
