@@ -18,4 +18,8 @@ public interface ShoppingCartService {
     * 清空购物车
     * */
     void clean();
+    /*
+    * 输出购物车内容
+    * */
+    void delete(ShoppingCartDTO shoppingCartDTO);
 }
