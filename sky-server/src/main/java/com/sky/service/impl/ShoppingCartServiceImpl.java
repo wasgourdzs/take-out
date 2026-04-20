@@ -29,8 +29,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private SetmealMapper setmealMapper;
 
     /*
-    * 添加购物车
-    * */
+     * 添加购物车
+     * */
     @Override
     public void add(ShoppingCartDTO shoppingCartDTO) {
         //查询数据库，是否存在对应数据
@@ -68,6 +68,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             shoppingCartMapper.insert(shoppingCart);
         }
+    }
 
+    /*
+     * 查看购物车
+     * */
+    @Override
+    public List<ShoppingCart> list() {
+        //获取userId，用userId查
+        Long userId = BaseContext.getCurrentId();
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(userId)
+                .build();
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        return list;
     }
 }
