@@ -28,6 +28,11 @@ public interface ShoppingCartMapper {
     void insert(ShoppingCart shoppingCart);
 
     /*
+    * 批量添加购物车
+    * */
+    void insertBatch(List<ShoppingCart> list);
+
+    /*
     * 根据用户ID删除数据
     * */
     @Delete("delete from shopping_cart where user_id = #{userId}")
