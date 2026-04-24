@@ -414,7 +414,9 @@ public class OrderServiceImpl implements OrderService {
         orders1.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders1);
     }
-
+    /*
+    * 检查距离
+    * */
     //调用百度api，检查配送距离是否超出限制
     private void checkOutOfRange (String address) {
         //编写参数

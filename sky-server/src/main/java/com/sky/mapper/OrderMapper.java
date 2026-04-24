@@ -46,4 +46,10 @@ public interface OrderMapper {
     * */
     @Select("select * from orders")
     List<Orders> list();
+
+    /*
+    * 查订单表有没有超时订单(未支付、未完成)
+    * */
+    @Select("select * from orders where status = #{status} and order_time < #{localDateTime}")
+    List<Orders> getByStatusAndOrderTime (Integer status, LocalDateTime localDateTime);
 }
