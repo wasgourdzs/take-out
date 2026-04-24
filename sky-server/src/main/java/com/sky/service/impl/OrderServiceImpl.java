@@ -21,6 +21,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     private Orders orders;
 
@@ -153,6 +156,17 @@ public class OrderServiceImpl implements OrderService {
         Integer OrderStatus = Orders.TO_BE_CONFIRMED;  //订单状态，待接单
         LocalDateTime check_out_time = LocalDateTime.now();//更新支付时间
         orderMapper.updateStatus(OrderStatus, OrderPaidStatus, check_out_time, this.orders.getId());
+
+        //向客户端发送来单提醒
+            //定义json格式数据（type（1 来单、2 催单）、OrderId、content 订单号）
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 1);
+        map.put("OrderId", orders.getId());
+        map.put("content", "订单号" + ordersPaymentDTO.getOrderNumber());
+
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
+
         return vo;
 
     }
@@ -414,6 +428,27 @@ public class OrderServiceImpl implements OrderService {
         orders1.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders1);
     }
+
+    /*
+    * 用户催单
+    * */
+    @Override
+    public void reminder(Long id) {
+        //查看催的是哪单
+        Orders orders1 = orderMapper.getById(id);
+        if (orders1 == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        //构造json字符串（type(1 来单， 2 催单)、OrderId（订单Id）、content （订单号））
+        Map<String, Object> map  = new HashMap<>();
+        map.put("type", 2);
+        map.put("OrderId", id);
+        map.put("content", "订单号" + orders1.getNumber());
+
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
+    }
+
     /*
     * 检查距离
     * */
