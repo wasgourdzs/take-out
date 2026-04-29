@@ -59,4 +59,9 @@ public interface OrderMapper {
     * 查询营业额
     * */
     Double sumByMap(Map<String, Object> map);
+
+    /*
+    * 查询订单数
+    * */
+    Integer countByMap(Map<String, Object> map);
 }

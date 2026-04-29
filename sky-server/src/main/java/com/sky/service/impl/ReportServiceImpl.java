@@ -4,10 +4,11 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +60,8 @@ public class ReportServiceImpl implements ReportService {
         }
 
         TurnoverReportVO turnoverReportVO = TurnoverReportVO.builder()
-                .dateList(StringUtil.join(",", dateList))
-                .turnoverList(StringUtil.join(",", turnoverList))
+                .dateList(StringUtils.join(dateList, ","))
+                .turnoverList(StringUtils.join(turnoverList, ","))
                 .build();
 
         return turnoverReportVO;
@@ -101,11 +102,64 @@ public class ReportServiceImpl implements ReportService {
         }
 
         UserReportVO userReportVO = UserReportVO.builder()
-                .dateList(StringUtil.join(",", dateList))
-                .newUserList(StringUtil.join(",", newUser))
-                .totalUserList(StringUtil.join(",", totalUser))
+                .dateList(StringUtils.join(dateList, ","))
+                .newUserList(StringUtils.join(newUser, ","))
+                .totalUserList(StringUtils.join(totalUser, ","))
                 .build();
 
         return userReportVO;
+    }
+
+    /*
+    * 订单统计
+    * */
+    @Override
+    public OrderReportVO getOrdersStatistics(LocalDate begin, LocalDate end) {
+        //创建时间列表
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while (!begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+
+        //查表，要查所有订单和已完成的订单数
+        List<Integer> completeOrderList = new ArrayList<>();
+        List<Integer> totalOrderList = new ArrayList<>();
+        for (LocalDate localDate : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(localDate, LocalDateTime.MIN.toLocalTime());
+            LocalDateTime endTime = LocalDateTime.of(localDate, LocalDateTime.MAX.toLocalTime());
+            //获取订单数
+            Integer totalCount = getCountWithStatusAndTime(beginTime, endTime, null);
+            Integer completeCount = getCountWithStatusAndTime(beginTime, endTime, Orders.COMPLETED);
+
+            completeOrderList.add(completeCount);
+            totalOrderList.add(totalCount);
+        }
+
+        //计算从订单数、总完成数、完成率
+        Integer complete = completeOrderList.stream().reduce(Integer::sum).get();
+        Integer total = totalOrderList.stream().reduce(Integer::sum).get();
+        Double rate = total == 0 ? 0.0 : complete.doubleValue() / total;
+
+        OrderReportVO orderReportVO = OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(totalOrderList, ","))
+                .validOrderCountList(StringUtils.join(completeOrderList, ","))
+                .totalOrderCount(total)
+                .validOrderCount(complete)
+                .orderCompletionRate(rate)
+                .build();
+
+        return orderReportVO;
+    }
+
+    private Integer getCountWithStatusAndTime (LocalDateTime begin, LocalDateTime end, Integer status) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("begin", begin);
+        map.put("end", end);
+        map.put("status", status);
+        Integer count = orderMapper.countByMap(map);
+        return count;
     }
 }
